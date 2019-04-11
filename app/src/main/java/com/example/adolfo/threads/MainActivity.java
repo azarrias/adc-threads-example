@@ -12,6 +12,26 @@ public class MainActivity extends AppCompatActivity {
     private EditText etInput;
     private TextView tvOutput;
 
+    class MyThread extends Thread {
+        private int n, res;
+
+        public MyThread(int n) {
+            this.n = n;
+        }
+
+        @Override
+        public void run() {
+            res = factorial(n);
+            //tvOutput.append(res + "\n");
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    tvOutput.append(res + "\n");
+                }
+            });
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,8 +43,8 @@ public class MainActivity extends AppCompatActivity {
     public void compute(View view) {
         int n = Integer.parseInt(etInput.getText().toString());
         tvOutput.append(n + "! = ");
-        int res = factorial(n);
-        tvOutput.append(res + "\n");
+        MyThread thread = new MyThread(n);
+        thread.start();
     }
 
     public int factorial(int n) {
