@@ -1,5 +1,6 @@
 package com.example.adolfo.threads;
 
+import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -32,6 +33,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    class MyTask extends AsyncTask<Integer, Void, Integer> {
+        private int res;
+
+        @Override
+        protected Integer doInBackground(Integer... integers) {
+            // Executes on a secondary thread
+            res = factorial(integers[0]);
+            return res;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            // Executes on the UI thread
+            tvOutput.append(res + "\n");
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,8 +61,10 @@ public class MainActivity extends AppCompatActivity {
     public void compute(View view) {
         int n = Integer.parseInt(etInput.getText().toString());
         tvOutput.append(n + "! = ");
-        MyThread thread = new MyThread(n);
-        thread.start();
+        //MyThread thread = new MyThread(n);
+        //thread.start();
+        MyTask task = new MyTask();
+        task.execute(n);
     }
 
     public int factorial(int n) {
