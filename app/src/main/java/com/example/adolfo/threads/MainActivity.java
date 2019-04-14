@@ -1,6 +1,7 @@
 package com.example.adolfo.threads;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
@@ -42,7 +43,14 @@ public class MainActivity extends AppCompatActivity {
             progress = new ProgressDialog(MainActivity.this);
             progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             progress.setMessage("Calculating...");
-            progress.setCancelable(false);
+            progress.setCancelable(true);
+            progress.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    // Cancel the async task whenever the progress dialog is cancelled
+                    MyTask.this.cancel(true);
+                }
+            });
             progress.setMax(100);
             progress.setProgress(0);
             progress.show();
@@ -52,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         protected Integer doInBackground(Integer... integers) {
             // Executes on a secondary thread
             int res = 1;
-            for (int i=1; i <= integers[0]; i++) {
+            for (int i=1; i <= integers[0] && !isCancelled(); i++) {
                 res *= i;
                 SystemClock.sleep(1000);
                 publishProgress(i * 100 / integers[0]);
@@ -71,6 +79,11 @@ public class MainActivity extends AppCompatActivity {
             // Executes on the UI thread
             progress.dismiss();
             tvOutput.append(integer + "\n");
+        }
+
+        @Override
+        protected void onCancelled() {
+            tvOutput.append("Cancelled by the user\n");
         }
     }
 
